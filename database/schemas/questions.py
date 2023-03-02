@@ -6,9 +6,17 @@ from schemas.base import Base
 class Questions(Base):
     __tablename__ = 'questions'
 
-    questionId = Column(String, primary_key=True, nullable=False, unique=True)
+    id = Column(String, primary_key=True, nullable=False, unique=True)
     mandatory = Column(Boolean)
     questionStatement = Column(String)
 
-    correctAnswer = Column(String, ForeignKey('options.optionId'))
-    options = relationship("Options", backref="questions", cascade="all, delete")
+    quizId = Column(String, ForeignKey('quiz.id'))
+    quiz = relationship("Quiz", backref="questions", cascade="all, delete")
+
+    def get_set(self, stmt):
+
+        return {
+            "mandatory": stmt.excluded.mandatory,
+            "questionStatement": stmt.excluded.questionStatement,
+            "quizId": stmt.excluded.quizId
+        }
