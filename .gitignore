@@ -1,0 +1,7 @@
+__pycache__/
+**/__pycache__
+config/__pycache__
+config/.env
+core/migration/gspread-343412-4b455254c6b5.json
+.vscode/
+.talismanrc
