@@ -11,7 +11,7 @@ class Questions(Base):
     questionStatement = Column(String)
 
     quizId = Column(String, ForeignKey('quiz.id'))
-    quiz = relationship("Quiz", backref="questions", cascade="all, delete")
+    options = relationship("Options", cascade="all,delete", backref="questions")
 
     def get_set(self, stmt):
 

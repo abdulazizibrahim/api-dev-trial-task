@@ -11,7 +11,6 @@ class Options(Base):
     correct = Column(Boolean)
 
     questionId = Column(String, ForeignKey('questions.id'))
-    questions = relationship("Questions", backref="options", cascade="all, delete")
 
 
     def get_set(self, stmt):

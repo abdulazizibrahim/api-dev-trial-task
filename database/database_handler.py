@@ -124,19 +124,25 @@ class DatabaseHandler:
 
 
 
-db = DatabaseHandler("localhost", "postgres", "postgres", "test")
+db = DatabaseHandler("localhost", "postgres", "postgres", "test-db")
 quiz = {
-    "id": "e962aaff-772b-4964-bb6d-44b572e1d23f",
-    "title": "This is Quiz 2 of Computer Science.",
-    "description": "This Quiz will comprise of general OOP concepts."
+    "id": "e962aaff-772b-4964-bb6d-44b572e1d23g",
+    "title": "This is Quiz 3 of Computer Science.",
+    "description": "This Quiz will comprise of general SAS concepts."
 }
 
 question = {
-    "id": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8e",
-    "questionStatement": "This is a question.",
+    "id": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f",
+    "questionStatement": "This is question 2.",
     "mandatory": True,
-    "quizId": "e962aaff-772b-4964-bb6d-44b572e1d23f"
+    "quizId": "e962aaff-772b-4964-bb6d-44b572e1d23g"
 }
-# print(db.upsert_data("questions", question))
-# print(db.get_data("quiz", "e962aaff-772b-4964-bb6d-44b572e1d23f"))
-print(db.delete_data("questions", "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8e"))
+options = {
+    "id": "6cfa6e51-7200-4738-ba62-6c32444a720d",
+    "option": "C",
+    "correct": False,
+    "questionId": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f"
+}
+# print(db.upsert_data("options", options))
+# print(db.get_data("quiz"))
+print(db.delete_data("quiz", "e962aaff-772b-4964-bb6d-44b572e1d23g"))

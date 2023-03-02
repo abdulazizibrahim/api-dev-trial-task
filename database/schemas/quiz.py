@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String
-
+from sqlalchemy.orm import relationship
 from schemas.base import Base
 
 class Quiz(Base):
@@ -9,6 +9,7 @@ class Quiz(Base):
     title = Column(String)
     description = Column(String)
 
+    questions = relationship("Questions",  cascade="all,delete", backref="quiz")
 
     def get_set(self, stmt):
 
