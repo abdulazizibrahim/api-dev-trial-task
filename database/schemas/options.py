@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-from schemas.base import Base
+from database.schemas.base import Base
 
 class Options(Base):
     __tablename__ = 'options'

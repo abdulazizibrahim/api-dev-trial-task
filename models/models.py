@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Union, Optional
+from typing import List, Optional
 from pydantic import BaseModel, root_validator, conlist
 
 from fastapi import HTTPException
@@ -17,21 +17,32 @@ class Questions(BaseModel):
     mandatory: bool
     questionStatement: str
     quizId: Optional[str]
-    options : List[Options]
+    options : Optional[List[Options]] = []
+    
+    @root_validator()
+    @classmethod
+    def populate_segments_exists(cls, values):
+        """
+        Validate that segment export should only be
+        generated for a single message type.
+        """
+
+        count = 0
+        for option in values["options"]:
+            if option["correct"]:
+                count +=1
+        if count != 1:
+            raise HTTPException(success=422,
+                                detail="There can only be one correct answer")
+
+        return values
 
 
 class Quiz(BaseModel):
     id: Optional[str]
     title: str
     description: str
-    questions: List[Questions]
-
-
-# class Data:
-#     quiz: Optional[List[Quiz]]
-#     questions: Optional[List[Questions]]
-#     options: Optional[List[Options]]
-#     status: Optional[str]
+    questions: Optional[List[Questions]] = []
 
 
 @dataclass

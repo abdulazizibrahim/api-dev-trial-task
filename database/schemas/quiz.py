@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from schemas.base import Base
+from database.schemas.base import Base
 
 class Quiz(Base):
     __tablename__ = 'quiz'

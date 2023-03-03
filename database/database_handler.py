@@ -2,10 +2,10 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import insert
 
-from schemas.quiz import Quiz
-from schemas.options import Options
-from schemas.questions import Questions
-from schemas.base import Base
+from database.schemas.quiz import Quiz
+from database.schemas.options import Options
+from database.schemas.questions import Questions
+from database.schemas.base import Base
 
 
 MODEL_MAPPER = {
@@ -119,29 +119,69 @@ class DatabaseHandler:
         res = delete(MODEL_MAPPER[table]).where(MODEL_MAPPER[table].id == id)
         self.session.execute(res)
         self.session.commit()
+        return True
+
+
+    def get_questions_from_quiz(self, quiz_id: str):
+        """_summary_
+        This function returns questions associated with the
+        provided quiz_id.
+        Args:
+            quiz_id (str): The id of the quiz.
+        """
+        result = (
+            self.session.query(Questions)
+            .filter(Questions.quizId == quiz_id)
+            ).all()
+        res = []
+        for data in result:
+            data = data.__dict__
+            data.pop('_sa_instance_state')
+            res.append(data)
         return res
+    
+    def get_options_from_question(self, question_id: str, verify=False):
+        """_summary_
+        This function returns questions associated with the
+        provided quiz_id.
+        Args:
+            quiz_id (str): The id of the quiz.
+        """
+        stmt = self.session.query(Options).filter(Options.questionId == question_id)
+        if verify:
+            stmt = self.session.query(Options).filter((Options.questionId == question_id) & (Options.correct == True))
+
+        result = (stmt).all()
+        res = []
+        for data in result:
+            data = data.__dict__
+            data.pop('_sa_instance_state')
+            res.append(data)
+        return res
+        
 
 
 
 db = DatabaseHandler("localhost", "postgres", "postgres", "test-db")
-quiz = {
-    "id": "e962aaff-772b-4964-bb6d-44b572e1d23g",
-    "title": "This is Quiz 3 of Computer Science.",
-    "description": "This Quiz will comprise of general SAS concepts."
-}
+# quiz = {
+#     "id": "e962aaff-772b-4964-bb6d-44b572e1d23g",
+#     "title": "This is Quiz 3 of Computer Science.",
+#     "description": "This Quiz will comprise of general SAS concepts."
+# }
 
-question = {
-    "id": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f",
-    "questionStatement": "This is question 2.",
-    "mandatory": True,
-    "quizId": "e962aaff-772b-4964-bb6d-44b572e1d23g"
-}
-options = {
-    "id": "6cfa6e51-7200-4738-ba62-6c32444a720d",
-    "option": "C",
-    "correct": False,
-    "questionId": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f"
-}
-# print(db.upsert_data("options", options))
-# print(db.get_data("quiz"))
-print(db.delete_data("quiz", "e962aaff-772b-4964-bb6d-44b572e1d23g"))
+# question = {
+#     "id": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f",
+#     "questionStatement": "This is question 2.",
+#     "mandatory": True,
+#     "quizId": "e962aaff-772b-4964-bb6d-44b572e1d23g"
+# }
+# options = {
+#     "id": "6cfa6e51-7200-4738-ba62-6c32444a720d",
+#     "option": "C",
+#     "correct": False,
+#     "questionId": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f"
+# }
+# # print(db.upsert_data("options", options))
+# # print(db.get_data("quiz"))
+# print(db.delete_data("quiz", "e962aaff-772b-4964-bb6d-44b572e1d23g"))
+# db.get_questions_from_quiz("e962aaff-772b-4964-bb6d-44b572e1d23g")

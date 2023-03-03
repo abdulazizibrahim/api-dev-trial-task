@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, status, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.models import BaseResponse, Quiz
+from src import core
 
 app = FastAPI(
     title="Trial Task API",
@@ -83,7 +84,7 @@ async def updateQuiz(body: Quiz) -> BaseResponse:
 async def deleteQuiz(id: str) -> BaseResponse:
     success, data, error = True, None, None
     try:
-        data = {"quiz": core.deleteQuiz(body)}
+        data = {"quiz": core.deleteQuiz(id)}
     except Exception as e:
         error = str(e)
         success = False
@@ -94,7 +95,7 @@ async def deleteQuiz(id: str) -> BaseResponse:
 async def submitQuiz(body: Quiz) -> BaseResponse:
     success, data, error = True, None, None
     try:
-        data = {"quiz": core.submitQuiz(body)}
+        data = {"quiz": core.checkQuiz(body)}
     except Exception as e:
         error = str(e)
         success = False
