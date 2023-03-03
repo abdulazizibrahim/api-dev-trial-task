@@ -8,7 +8,6 @@ from schemas.questions import Questions
 from schemas.base import Base
 
 
-
 MODEL_MAPPER = {
     "quiz": Quiz,
     "questions": Questions,
