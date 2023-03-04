@@ -25,9 +25,9 @@ def getQuiz(id: str):
     """
     quizes = DB_HANDLER.getData("quiz", id)
     for quiz in quizes:
-        quiz["questions"] = DB_HANDLER.get_questions_from_quiz(quiz["id"])
+        quiz["questions"] = DB_HANDLER.getQuestionsFromQuiz(quiz["id"])
         for question in quiz["questions"]:
-            question["options"] = DB_HANDLER.get_options_from_question(question["id"])
+            question["options"] = DB_HANDLER.getOptionsFromQuestion(question["id"])
     return quizes
 
 
