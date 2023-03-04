@@ -8,9 +8,11 @@ PROJECT_ROOT = os.path.abspath(
 )
 sys.path.append(PROJECT_ROOT)
 from database.database_handler import DatabaseHandler
+from config.config import DATABASE, DATABASE_HOST
+from config.config import DATABASE_USER, DATABASE_PASSWORD
 
 
-DB_HANDLER = DatabaseHandler("localhost", "postgres", "postgres", "test-db")
+DB_HANDLER = DatabaseHandler(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE)
 
 
 def getQuiz(id: str):
@@ -21,7 +23,7 @@ def getQuiz(id: str):
     Args:1
         id (str): The id of quiz to fetch a specific record.
     """
-    quizes = DB_HANDLER.get_data("quiz", id)
+    quizes = DB_HANDLER.getData("quiz", id)
     for quiz in quizes:
         quiz["questions"] = DB_HANDLER.get_questions_from_quiz(quiz["id"])
         for question in quiz["questions"]:
@@ -37,13 +39,15 @@ def upsertQuiz(quiz: dict):
     """
     temp = copy(quiz)
     temp.pop("questions")
-    DB_HANDLER.upsert_data("quiz", temp)
+    DB_HANDLER.upsertData("quiz", temp)
     for question in quiz["questions"]:
-        question["quiz_id"] = quiz["id"]
-        DB_HANDLER.upsert_data("question", question)
+        question["quizId"] = quiz["id"]
+        temp2 = copy(question)
+        temp2.pop("options")
+        DB_HANDLER.upsertData("questions", temp2)
         for option in question["options"]:
-            option["question_id"] = question["id"]
-            DB_HANDLER.upsert_data("options", option)
+            option["questionId"] = question["id"]
+            DB_HANDLER.upsertData("options", option)
 
     return quiz
 
@@ -55,14 +59,16 @@ def deleteQuiz(id: str):
     Args:
         quiz (dict): A dict containing information of the quiz.
     """
-    questions = DB_HANDLER.get_questions_from_quiz(id)
+    questions = DB_HANDLER.getQuestionsFromQuiz(id)
     for question in questions:
-        options = DB_HANDLER.get_options_from_question(question["id"])
+        options = DB_HANDLER.getOptionsFromQuestion(question["id"])
         for option in options:
-            DB_HANDLER.delete_data("options", option["id"])
-        DB_HANDLER.delete_data("questions", question["id"])
-    quiz = DB_HANDLER.get_data("quiz", id)
-    DB_HANDLER.delete_data("quiz", id)
+            DB_HANDLER.deleteData("options", option["id"])
+        DB_HANDLER.deleteData("questions", question["id"])
+    quiz = DB_HANDLER.getData("quiz", id)
+    DB_HANDLER.deleteData("quiz", id)
+    if not quiz:
+        quiz = "No record exists for the provided id."
     return quiz 
 
 
@@ -76,12 +82,12 @@ def checkQuiz(quiz: dict):
     res = {}
     res["answers"] = []
     score = 0
-    total = len(quiz["questions"])
-    for question in quiz["questions"]:
+    total = len(quiz["answers"])
+    for question in quiz["answers"]:
         answer = {}
-        answer["questionId"] = question["id"]
+        answer["questionId"] = question["questionId"]
         answer["questionStatement"] = question["questionStatement"]
-        record = DB_HANDLER.get_options_from_question(question["id"], verify=True)[0]
+        record = DB_HANDLER.getOptionsFromQuestion(question["questionId"], verify=True)[0]
         answer["optionId"] = record["id"]
         answer["option"] = record["option"]
         if question["optionId"] == record["id"]:
@@ -90,17 +96,3 @@ def checkQuiz(quiz: dict):
     res["score"] = f"{score}/{total}"
     return res
  
-    
-# getQuiz("e962aaff-772b-4964-bb6d-44b572e1d23g")
-# DB_HANDLER.get_questions_from_quiz("e962aaff-772b-4964-bb6d-44b572e1d23g")
-# print(DB_HANDLER.get_options_from_question("a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f", verify=True))
-print(checkQuiz({
-"questions":[
-{
-'questionStatement': 'This is question 2.',
- 'id': 'a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f',
-'optionId': '6cfa6e51-7200-4738-ba62-6c32444a720b',
-'option': 'A'
-}    
-]
-}))

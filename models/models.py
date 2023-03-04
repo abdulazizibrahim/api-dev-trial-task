@@ -19,31 +19,22 @@ class Questions(BaseModel):
     quizId: Optional[str]
     options : Optional[List[Options]] = []
     
-    @root_validator()
-    @classmethod
-    def populate_segments_exists(cls, values):
-        """
-        Validate that segment export should only be
-        generated for a single message type.
-        """
-
-        count = 0
-        for option in values["options"]:
-            if option["correct"]:
-                count +=1
-        if count != 1:
-            raise HTTPException(success=422,
-                                detail="There can only be one correct answer")
-
-        return values
-
-
+ 
 class Quiz(BaseModel):
     id: Optional[str]
     title: str
     description: str
     questions: Optional[List[Questions]] = []
 
+
+class VerifyAnswer(BaseModel):
+    questionId: str
+    questionStatement: str
+    optionId: str
+    option: str
+
+class Answers(BaseModel):
+    answers: List[VerifyAnswer]
 
 @dataclass
 class BaseResponse:

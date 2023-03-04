@@ -1,8 +1,8 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException, status, Request, Response
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from models.models import BaseResponse, Quiz
+from models.models import Answers, BaseResponse, Quiz
 from src import core
 
 app = FastAPI(
@@ -25,80 +25,65 @@ app.add_middleware(
 
 
 @app.get("/api/getQuiz", response_model=BaseResponse)
-async def getQuiz(id: str=None) -> BaseResponse:
+async def getQuiz(response: Response, id: str=None) -> BaseResponse:
     success, data, error = True, None, None
     try:
         data = {"quiz": core.getQuiz(id)}
     except Exception as e:
         error = str(e)
         success = False
-    return BaseResponse(success, error, {"quiz": data})
-
-
-@app.get("/api/getQuestions", response_model=BaseResponse)
-async def getQuestions(id: str=None) -> BaseResponse:
-    success, data, error = True, None, None
-    try:
-        data = {"questions": core.getQuestions(id)}
-    except Exception as e:
-        error = str(e)
-        success = False
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return BaseResponse(success, error, data)
 
 
-@app.get("/api/getOptions", response_model=BaseResponse)
-async def getOptions(id: str=None) -> BaseResponse:
-    success, data, error = True, None, None
-    try:
-        data = {"options": core.getOptions(id)}
-    except Exception as e:
-        error = str(e)
-        success = False
-    
-    return BaseResponse(success, error, data)    
-
-
 @app.put("/api/createQuiz", response_model=BaseResponse)
-async def createQuiz(body: Quiz) -> BaseResponse:
+async def createQuiz(body: Quiz, response: Response) -> BaseResponse:
     success, data, error = True, None, None
     try:
+        body = body.dict()
         data = {"quiz": core.upsertQuiz(body)}
     except Exception as e:
         error = str(e)
         success = False
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return BaseResponse(success, error, data)
 
 
 @app.patch("/api/updateQuiz", response_model=BaseResponse)
-async def updateQuiz(body: Quiz) -> BaseResponse:
+async def updateQuiz(body: Quiz, response: Response) -> BaseResponse:
     success, data, error = True, None, None
     try:
+        body = body.dict()
         data = {"quiz": core.upsertQuiz(body)}
     except Exception as e:
         error = str(e)
         success = False
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return BaseResponse(success, error, data)
 
 
-@app.delete("api/deleteQuiz", response_model=BaseResponse)
-async def deleteQuiz(id: str) -> BaseResponse:
+@app.delete("/api/deleteQuiz", response_model=BaseResponse)
+async def deleteQuiz(id: str, response: Response) -> BaseResponse:
     success, data, error = True, None, None
     try:
         data = {"quiz": core.deleteQuiz(id)}
     except Exception as e:
         error = str(e)
         success = False
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return BaseResponse(success, error, data)
 
 
 @app.post("/api/submitQuiz", response_model=BaseResponse)
-async def submitQuiz(body: Quiz) -> BaseResponse:
+async def submitQuiz(body: Answers, response: Response) -> BaseResponse:
     success, data, error = True, None, None
     try:
+        body = body.dict()
         data = {"quiz": core.checkQuiz(body)}
     except Exception as e:
         error = str(e)
         success = False
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return BaseResponse(success, error, data)
 
 

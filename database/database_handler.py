@@ -41,30 +41,7 @@ class DatabaseHandler:
         self.session = session()
 
 
-    def upsert_quiz(self, quiz: dict):
-        """_summary_
-        This function updates and inserts a record into the quiz table.
-        Args:
-            quiz (dict): A dictionary containing records of quiz
-        """
-
-        stmt = insert(Quiz).values(quiz)
-
-        stmt = stmt.on_conflict_do_update(
-            constraint = "quiz_pkey",
-            set_={
-                "id": stmt.excluded.id,
-                "title": stmt.excluded.title,
-                "description": stmt.excluded.description
-            }
-        )
-
-        self.session.execute(stmt)
-        self.session.commit()
-        return quiz
-
-
-    def upsert_data(self, table: str, data: dict):
+    def upsertData(self, table: str, data: dict):
         """_summary_
         This function updates and inserts a record into the provided table.
         Args:
@@ -86,7 +63,7 @@ class DatabaseHandler:
 
 
 
-    def get_data(self, table: str, id: str=None):
+    def getData(self, table: str, id: str=None):
         """_summary_
         This function gets all the data from the provided table
         if the id is not provided. If the id is provided it fetches
@@ -98,7 +75,7 @@ class DatabaseHandler:
         
         stmt = self.session.query(MODEL_MAPPER[table])
         if id:
-            stmt.filter(MODEL_MAPPER[table].id == id)
+            stmt = self.session.query(MODEL_MAPPER[table]).filter(MODEL_MAPPER[table].id == id)
         result = (stmt).all()
         res = []
         for data in result:
@@ -108,7 +85,7 @@ class DatabaseHandler:
         return res
 
 
-    def delete_data(self, table: str, id: str):
+    def deleteData(self, table: str, id: str):
         """_summary_
         This function deletes a record of the provided
         table based on the provided id.
@@ -122,7 +99,7 @@ class DatabaseHandler:
         return True
 
 
-    def get_questions_from_quiz(self, quiz_id: str):
+    def getQuestionsFromQuiz(self, quiz_id: str):
         """_summary_
         This function returns questions associated with the
         provided quiz_id.
@@ -140,7 +117,7 @@ class DatabaseHandler:
             res.append(data)
         return res
     
-    def get_options_from_question(self, question_id: str, verify=False):
+    def getOptionsFromQuestion(self, question_id: str, verify=False):
         """_summary_
         This function returns questions associated with the
         provided quiz_id.
@@ -158,30 +135,3 @@ class DatabaseHandler:
             data.pop('_sa_instance_state')
             res.append(data)
         return res
-        
-
-
-
-db = DatabaseHandler("localhost", "postgres", "postgres", "test-db")
-# quiz = {
-#     "id": "e962aaff-772b-4964-bb6d-44b572e1d23g",
-#     "title": "This is Quiz 3 of Computer Science.",
-#     "description": "This Quiz will comprise of general SAS concepts."
-# }
-
-# question = {
-#     "id": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f",
-#     "questionStatement": "This is question 2.",
-#     "mandatory": True,
-#     "quizId": "e962aaff-772b-4964-bb6d-44b572e1d23g"
-# }
-# options = {
-#     "id": "6cfa6e51-7200-4738-ba62-6c32444a720d",
-#     "option": "C",
-#     "correct": False,
-#     "questionId": "a8eb9ad4-3b68-4b7e-a000-26f0af8c0a8f"
-# }
-# # print(db.upsert_data("options", options))
-# # print(db.get_data("quiz"))
-# print(db.delete_data("quiz", "e962aaff-772b-4964-bb6d-44b572e1d23g"))
-# db.get_questions_from_quiz("e962aaff-772b-4964-bb6d-44b572e1d23g")
