@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from pydantic import BaseModel, root_validator, conlist
-
-from fastapi import HTTPException
-
+from pydantic import BaseModel
 
 class Options(BaseModel):
     id: Optional[str]
